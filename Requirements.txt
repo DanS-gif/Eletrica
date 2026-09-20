@@ -1,1 +1,1 @@
-pip install streamlit schemdraw matplotlib
+streamlit schemdraw matplotlib
