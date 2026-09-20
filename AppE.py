@@ -1,5 +1,4 @@
 import streamlit as st
-import schemdraw
 import schemdraw.elements as elm
 import matplotlib.pyplot as plt
 
