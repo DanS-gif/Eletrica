@@ -1,1 +1,3 @@
 graphviz
+streamlit
+matplotlib.pyplot
