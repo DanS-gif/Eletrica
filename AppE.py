@@ -1,11 +1,49 @@
 import streamlit as st
-import graphviz
+import matplotlib.pyplot as plt
 
 def calcular_resistencia_equivalente(r1, r2, r3, r4):
     r_serie_ramo = r3 + r4
     r_paralelo = (r2 * r_serie_ramo) / (r2 + r_serie_ramo) if (r2 + r_serie_ramo) != 0 else 0
-    req = r1 + r_paralelo
-    return req
+    return r1 + r_paralelo
+
+def renderizar_esquematico_nativo(v_fonte, r1, r2, r3, r4):
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.axis('off') # Oculta os eixos cartesianos
+    
+    # Desenhar as linhas principais (fios do circuito)
+    ax.plot([0, 0, 2], [0, 2, 2], color='black', lw=2) # Fio da fonte até R1
+    ax.plot([2, 4, 4], [2, 2, 0], color='black', lw=2) # Fio de R1 para R3 e descida para R4
+    ax.plot([0, 4], [0, 0], color='black', lw=2)       # Fio inferior de retorno (Terra)
+    ax.plot([2, 2], [0, 2], color='black', lw=2)       # Fio do ramo central (R2)
+    
+    # Desenhar a Fonte de Tensão (Círculo)
+    fonte = plt.Circle((0, 1), 0.3, color='white', ec='black', lw=2, zorder=3)
+    ax.add_patch(fonte)
+    ax.text(0, 1, f'{v_fonte}V\n(+ -)', ha='center', va='center', fontsize=9, fontweight='bold')
+    
+    # Função auxiliar para desenhar as resistências como retângulos
+    def desenhar_resistor(x, y, label, horizontal=True):
+        if horizontal:
+            rect = plt.Rectangle((x-0.4, y-0.15), 0.8, 0.3, color='white', ec='black', lw=2, zorder=3)
+            ax.text(x, y+0.25, label, ha='center', va='bottom', fontsize=10)
+        else:
+            rect = plt.Rectangle((x-0.15, y-0.4), 0.3, 0.8, color='white', ec='black', lw=2, zorder=3)
+            ax.text(x+0.25, y, label, ha='left', va='center', fontsize=10)
+        ax.add_patch(rect)
+
+    # Posicionar os componentes
+    desenhar_resistor(1, 2, f'R1\n{r1}Ω', horizontal=True)
+    desenhar_resistor(2, 1, f'R2\n{r2}Ω', horizontal=False)
+    desenhar_resistor(3, 2, f'R3\n{r3}Ω', horizontal=True)
+    desenhar_resistor(4, 1, f'R4\n{r4}Ω', horizontal=False)
+    
+    # Pontos de conexão (Nós de divisão de corrente)
+    ax.plot([2], [2], marker='o', color='black', markersize=6)
+    ax.plot([2], [0], marker='o', color='black', markersize=6)
+    
+    ax.set_xlim(-1, 5)
+    ax.set_ylim(-0.5, 3)
+    return fig
 
 def main():
     st.set_page_config(page_title="Visualizador de Circuitos Mistos", layout="wide")
@@ -25,29 +63,8 @@ def main():
 
     with col1:
         st.subheader("Topologia do Circuito")
-        
-        # Criação do diagrama de nós usando Graphviz (Nativo do Streamlit)
-        graph = graphviz.Digraph(engine='dot')
-        graph.attr(rankdir='LR', size='8,5')
-        
-        graph.node('V', f'Fonte\n{v_fonte}V', shape='circle', style='filled', fillcolor='lightyellow')
-        graph.node('N1', 'Nó de\nDivisão', shape='point')
-        graph.node('N2', 'Nó de\nJunção', shape='point')
-        graph.node('GND', 'Terra\n(0V)', shape='invtriangle')
-
-        # Conexões
-        graph.edge('V', 'N1', label=f' R1 ({r1}Ω)')
-        graph.edge('N1', 'N2', label=f' R2 ({r2}Ω)')
-        
-        # Nó intermediário para representar a série R3+R4
-        graph.node('N_M', 'Ramo\nSérie', shape='point')
-        graph.edge('N1', 'N_M', label=f' R3 ({r3}Ω)')
-        graph.edge('N_M', 'N2', label=f' R4 ({r4}Ω)')
-        
-        graph.edge('N2', 'GND')
-
-        # Renderiza no Streamlit
-        st.graphviz_chart(graph)
+        fig = renderizar_esquematico_nativo(v_fonte, r1, r2, r3, r4)
+        st.pyplot(fig)
 
     with col2:
         st.subheader("Análise Analítica")
