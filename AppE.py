@@ -72,9 +72,9 @@ def main():
         st.metric(label="Corrente Total da Fonte (It)", value=f"{corrente_total:.3f} A")
         
         st.markdown("### Memória de Cálculo")
-        st.latex(r"R_{ramo} = R_3 + R_4 = " + f"{r3} + {r4} = {r3+r4} \, \Omega")
-        st.latex(r"R_{paralelo} = \frac{R_2 \cdot R_{ramo}}{R_2 + R_{ramo}} = " + f"{(r2*(r3+r4))/(r2+r3+r4):.2f} \, \Omega")
-        st.latex(r"R_{eq} = R_1 + R_{paralelo} = " + f"{req:.2f} \, \Omega")
+        st.latex(r"R_{ramo} = R_3 + R_4 = " + f"{r3} + {r4} = {r3+r4} \\, \\Omega")
+        st.latex(r"R_{paralelo} = \frac{R_2 \cdot R_{ramo}}{R_2 + R_{ramo}} = " + f"{(r2*(r3+r4))/(r2+r3+r4):.2f} \\, \\Omega")
+        st.latex(r"R_{eq} = R_1 + R_{paralelo} = " + f"{req:.2f} \\, \\Omega")
 
 if __name__ == "__main__":
     main()
